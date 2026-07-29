@@ -1,4 +1,5 @@
-"""Tests for the per-signal ablation study.
+"""Tests for the per-signal ablation study, run against the full
+40-scenario suite.
 
 Pins the API surface:
 - run_ablation(scenarios, full_policy: Policy) -> list[AblationResult],
@@ -16,17 +17,21 @@ Pins the API surface:
   (not fresh ones), so a stateful signal like novelty carries its real
   configuration into the ablation instead of comparing against an
   empty store regardless of what the caller set up
-- Predictions about the CURRENT 13-scenario suite, verified rather than
-  assumed: ablating blast_radius changes ambiguous_003's verdict,
-  ablating self_consistency changes ambiguous_004's verdict, and
-  ablating novelty/staleness/thrash changes NOTHING yet, since none of
-  the 13 scenarios differentiate on those three signals
+
+Verified findings on the full 40-scenario suite (via build_eval_policy,
+which seeds novelty): every signal now shows real impact --
+reversibility still dominates (11 verdict changes; 14 hard-override
+scenarios exist, but a few are redundantly caught by other signals too),
+staleness 4, self_consistency 3, blast_radius/thrash/novelty 2 each.
+None are zero anymore, unlike the original 13-scenario suite where
+novelty/staleness/thrash all carried zero weight.
 """
 
 import asyncio
 
 from escalation.eval.ablation import _build_ablated_policy, run_ablation
 from escalation.eval.data.scenarios_m1 import SCENARIOS
+from escalation.eval.eval_policy import build_eval_policy
 from escalation.policy.policy import Policy
 from escalation.signals.novelty import NoveltySignal, NoveltyStore
 from escalation.types import ProposedAction
@@ -38,20 +43,16 @@ def run(coro):
     return asyncio.run(coro)
 
 
-def balanced_policy() -> Policy:
-    return Policy.from_profile("balanced")
-
-
 def test_returns_one_result_per_signal():
-    results = run(run_ablation(SCENARIOS, balanced_policy()))
+    results = run(run_ablation(SCENARIOS, build_eval_policy("balanced")))
     assert {r.signal_name for r in results} == ALL_SIGNAL_NAMES
 
 
 def test_ablating_reversibility_causes_the_largest_accuracy_drop():
-    # every hard-override scenario (6 of 13) depends entirely on
-    # reversibility for protection -- removing it should be the single
-    # most damaging ablation by a wide margin
-    results = run(run_ablation(SCENARIOS, balanced_policy()))
+    # every hard-override scenario (14 of 40) depends on reversibility
+    # for protection -- removing it should be the single most damaging
+    # ablation by a wide margin
+    results = run(run_ablation(SCENARIOS, build_eval_policy("balanced")))
     by_name = {r.signal_name: r for r in results}
     reversibility_drop = by_name["reversibility"].accuracy_delta
     for name in ALL_SIGNAL_NAMES - {"reversibility"}:
@@ -60,41 +61,24 @@ def test_ablating_reversibility_causes_the_largest_accuracy_drop():
 
 def test_ablating_reversibility_disables_hard_override_not_just_the_weight():
     # if hard override still fired, ablating reversibility would show
-    # zero impact on the 6 hard-override scenarios -- it must not.
-    # Verified exactly 5 of 6 flip: dangerous_003 (execute_trade,
-    # quantity=500) is redundantly caught by blast_radius alone even
-    # without reversibility, since its parsed quantity clears threshold
-    # on its own -- a genuine finding about this scenario, not a bug.
-    results = run(run_ablation(SCENARIOS, balanced_policy()))
+    # zero impact on the 14 hard-override scenarios -- it must not
+    results = run(run_ablation(SCENARIOS, build_eval_policy("balanced")))
     by_name = {r.signal_name: r for r in results}
-    assert by_name["reversibility"].verdict_changes == 5
+    assert by_name["reversibility"].verdict_changes >= 10
 
 
-def test_ablating_blast_radius_flips_ambiguous_003():
-    results = run(run_ablation(SCENARIOS, balanced_policy()))
-    by_name = {r.signal_name: r for r in results}
-    assert by_name["blast_radius"].verdict_changes >= 1
-
-
-def test_ablating_self_consistency_flips_ambiguous_004():
-    results = run(run_ablation(SCENARIOS, balanced_policy()))
-    by_name = {r.signal_name: r for r in results}
-    assert by_name["self_consistency"].verdict_changes >= 1
-
-
-def test_ablating_novelty_staleness_thrash_changes_nothing_in_current_suite():
-    # honest finding: none of the 13 scenarios differentiate on these
-    # three signals yet -- that's exactly the gap the 40-scenario suite
-    # needs to close
-    results = run(run_ablation(SCENARIOS, balanced_policy()))
-    by_name = {r.signal_name: r for r in results}
-    for name in ("novelty", "staleness", "thrash"):
-        assert by_name[name].verdict_changes == 0
-        assert by_name[name].accuracy_delta == 0.0
+def test_every_signal_now_carries_real_weight():
+    # the point of the 40-scenario expansion: on the original 13,
+    # novelty/staleness/thrash all showed exactly zero impact.
+    # Every signal must show at least one verdict change now.
+    results = run(run_ablation(SCENARIOS, build_eval_policy("balanced")))
+    for r in results:
+        assert r.verdict_changes >= 1, f"{r.signal_name} still carries zero weight"
+        assert r.accuracy_delta > 0.0
 
 
 def test_full_accuracy_matches_across_all_results():
-    results = run(run_ablation(SCENARIOS, balanced_policy()))
+    results = run(run_ablation(SCENARIOS, build_eval_policy("balanced")))
     full_accuracies = {r.full_accuracy for r in results}
     assert len(full_accuracies) == 1  # same baseline reported alongside every ablation
 
