@@ -14,6 +14,7 @@ resampling here rather than left for hand-authored scenario data.
 from dataclasses import dataclass
 from typing import Any, Protocol
 
+from escalation.adapters.retry import create_with_temperature_fallback
 from escalation.types import ProposedAction, Step
 
 
@@ -79,7 +80,8 @@ class AnthropicAgent:
         self, trajectory: list[Step] | None = None, temperature: float = 0.0
     ) -> ProposedAction | None:
         trajectory = trajectory or []
-        response = await self._raw_client.messages.create(
+        response = await create_with_temperature_fallback(
+            self._raw_client.messages,
             model=self._model,
             max_tokens=1024,
             temperature=temperature,

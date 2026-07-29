@@ -8,6 +8,8 @@ if the SDK's shape changes.
 
 from typing import Any, Protocol
 
+from escalation.adapters.retry import create_with_temperature_fallback
+
 
 class _RawMessages(Protocol):
     async def create(self, **kwargs: Any) -> Any: ...
@@ -23,7 +25,8 @@ class AnthropicClient:
         self._model = model
 
     async def complete(self, prompt: str, max_tokens: int = 256, temperature: float = 0.0) -> str:
-        response = await self._raw_client.messages.create(
+        response = await create_with_temperature_fallback(
+            self._raw_client.messages,
             model=self._model,
             max_tokens=max_tokens,
             temperature=temperature,
