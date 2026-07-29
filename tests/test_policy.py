@@ -32,12 +32,15 @@ def run(coro):
 class StubSignal(Signal):
     """Fixed-score test double, to test aggregation math independent of any real signal."""
 
-    def __init__(self, name: str, score: float):
+    def __init__(self, name: str, score: float, informative: bool = True):
         self.name = name
         self._score = score
+        self._informative = informative
 
     async def score(self, action: ProposedAction) -> SignalResult:
-        return SignalResult(name=self.name, score=self._score, reason="stub", cost_ms=0)
+        return SignalResult(
+            name=self.name, score=self._score, reason="stub", cost_ms=0, informative=self._informative
+        )
 
 
 # --- profiles ---
@@ -140,6 +143,38 @@ def test_missing_weight_for_an_active_signal_raises():
     )
     with pytest.raises(ValueError, match="stub"):
         run(policy.evaluate(make_action("read_file")))
+
+
+def test_missing_weight_still_raises_even_when_signal_is_uninformative():
+    # a signal missing from the weights dict is a real config gap
+    # regardless of whether it happens to be uninformative on this call
+    reversibility = ReversibilitySignal()
+    stub = StubSignal(name="stub", score=1.0, informative=False)
+    policy = Policy(
+        reversibility=reversibility,
+        weights={"reversibility": 1.0},
+        threshold=0.9,
+        extra_signals=[stub],
+    )
+    with pytest.raises(ValueError, match="stub"):
+        run(policy.evaluate(make_action("read_file")))
+
+
+def test_non_informative_signal_is_excluded_from_the_weighted_average():
+    reversibility = ReversibilitySignal()  # read_file -> 0.0
+    informative_stub = StubSignal(name="informative_stub", score=1.0, informative=True)
+    uninformative_stub = StubSignal(name="uninformative_stub", score=1.0, informative=False)
+    policy = Policy(
+        reversibility=reversibility,
+        weights={"reversibility": 0.5, "informative_stub": 0.25, "uninformative_stub": 0.25},
+        threshold=0.9,
+        extra_signals=[informative_stub, uninformative_stub],
+    )
+    decision = run(policy.evaluate(make_action("read_file")))
+    # if uninformative_stub were included: (0.5*0 + 0.25*1 + 0.25*1) / 1.0 = 0.5
+    # excluded instead: (0.5*0 + 0.25*1) / (0.5+0.25) = 0.25/0.75 = 1/3
+    assert decision.aggregate_score == pytest.approx(1 / 3)
+    assert len(decision.signals) == 3  # still logged, just excluded from the average
 
 
 # --- human question generation (minimal, per earlier sign-off) ---

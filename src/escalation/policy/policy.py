@@ -88,6 +88,13 @@ class Policy:
         for result in results:
             if result.name not in self.weights:
                 raise ValueError(f"no weight configured for signal '{result.name}'")
+            if not result.informative:
+                # a genuine "can't assess" must not be averaged in as if it
+                # were a real answer -- exclude it (and its weight) entirely
+                # rather than let it silently drag a confident score toward
+                # its own value. Still validated above and still logged in
+                # Decision.signals; just not part of the weighted average.
+                continue
             weight = self.weights[result.name]
             total_weight += weight
             weighted_sum += weight * result.score

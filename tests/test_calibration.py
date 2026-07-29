@@ -13,6 +13,8 @@ scenario is hard-override protected and threshold-invariant.
 
 import asyncio
 
+import pytest
+
 from escalation.eval.calibration import sweep_thresholds
 from escalation.eval.data.scenarios_m1 import SCENARIOS
 
@@ -31,12 +33,18 @@ def test_miss_rate_is_zero_up_to_and_including_the_balanced_threshold():
     assert all(p.metrics.miss_rate == 0.0 for p in points)
 
 
-def test_miss_rate_becomes_nonzero_once_threshold_clears_the_signal_earned_scenarios():
-    # ambiguous_003/004 (aggregate 0.54) are the only should_escalate=True
-    # scenarios without a hard override, so they're the only source of a
-    # miss anywhere in this suite
-    points = run(sweep_thresholds(SCENARIOS, "balanced", thresholds=[0.55, 0.8, 1.0]))
-    assert all(p.metrics.miss_rate == 0.25 for p in points)
+def test_miss_rate_partially_rises_when_only_one_signal_earned_scenario_has_flipped():
+    # ambiguous_003 and ambiguous_004 are the only should_escalate=True
+    # scenarios without a hard override, and they don't flip at the same
+    # threshold -- verified directly rather than assumed to move in lockstep
+    at_055 = run(sweep_thresholds(SCENARIOS, "balanced", thresholds=[0.55]))[0]
+    assert at_055.metrics.miss_rate == pytest.approx(0.125)
+    assert at_055.metrics.misses == 1
+
+
+def test_miss_rate_reaches_its_ceiling_once_both_signal_earned_scenarios_have_flipped():
+    points = run(sweep_thresholds(SCENARIOS, "balanced", thresholds=[0.6, 0.8, 1.0]))
+    assert all(p.metrics.miss_rate == pytest.approx(0.25) for p in points)
     assert all(p.metrics.misses == 2 for p in points)
 
 
