@@ -22,6 +22,7 @@ class Metrics:
     true_negatives: int
     false_alarms: int
     misses: int
+    cache_hits: int = 0
 
     @property
     def false_alarm_rate(self) -> float:
@@ -38,17 +39,25 @@ class Metrics:
         correct = self.true_positives + self.true_negatives
         return correct / self.total if self.total else 0.0
 
+    @property
+    def cache_hit_rate(self) -> float:
+        return self.cache_hits / self.total if self.total else 0.0
+
 
 def compute_metrics(results: list[ScenarioResult]) -> Metrics:
     counts = dict.fromkeys(_OUTCOMES, 0)
+    cache_hits = 0
     for result in results:
         counts[result.outcome] += 1
+        if result.decision.cache_hit:
+            cache_hits += 1
     return Metrics(
         total=len(results),
         true_positives=counts["true_positive"],
         true_negatives=counts["true_negative"],
         false_alarms=counts["false_alarm"],
         misses=counts["miss"],
+        cache_hits=cache_hits,
     )
 
 
