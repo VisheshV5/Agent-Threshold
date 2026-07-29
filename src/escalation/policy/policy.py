@@ -10,6 +10,7 @@ curve and for telling threshold-driven escalations apart from
 override-driven ones (Decision.hard_override_triggered).
 """
 
+from escalation.decision_cache import DecisionCache, Resolution
 from escalation.decision_log import DecisionLogger
 from escalation.policy.profiles import DEFAULT_WEIGHTS, PROFILE_THRESHOLDS
 from escalation.signals.base import Signal
@@ -30,12 +31,14 @@ class Policy:
         threshold: float,
         extra_signals: list[Signal] | None = None,
         logger: DecisionLogger | None = None,
+        cache: DecisionCache | None = None,
     ):
         self.reversibility = reversibility
         self.signals: list[Signal] = [reversibility, *(extra_signals or [])]
         self.weights = weights
         self.threshold = threshold
         self.logger = logger
+        self.cache = cache
 
     @classmethod
     def from_profile(
@@ -48,6 +51,7 @@ class Policy:
         staleness: StalenessSignal | None = None,
         thrash: ThrashSignal | None = None,
         logger: DecisionLogger | None = None,
+        cache: DecisionCache | None = None,
     ) -> "Policy":
         if profile not in PROFILE_THRESHOLDS:
             raise ValueError(f"unknown profile: {profile!r}, expected one of {sorted(PROFILE_THRESHOLDS)}")
@@ -63,20 +67,27 @@ class Policy:
                 thrash or ThrashSignal(),
             ],
             logger=logger,
+            cache=cache,
         )
 
     async def evaluate(self, action: ProposedAction) -> Decision:
         category, _source = await self.reversibility.classify(action)
         hard_override = category in HARD_OVERRIDE_CATEGORIES
 
+        # hard-override actions never even consult the cache, no exceptions
+        cached_resolution = self.cache.get(action) if (self.cache is not None and not hard_override) else None
+
         results = [await signal.score(action) for signal in self.signals]
         aggregate = self._aggregate(results)
 
-        verdict = "ask_human" if (hard_override or aggregate >= self.threshold) else "proceed"
-
-        question = (
-            self._build_question(action, results, hard_override) if verdict == "ask_human" else None
-        )
+        if cached_resolution is not None:
+            verdict = cached_resolution
+            question = None
+        else:
+            verdict = "ask_human" if (hard_override or aggregate >= self.threshold) else "proceed"
+            question = (
+                self._build_question(action, results, hard_override) if verdict == "ask_human" else None
+            )
 
         decision = Decision(
             verdict=verdict,
@@ -84,12 +95,27 @@ class Policy:
             signals=results,
             question=question,
             hard_override_triggered=hard_override,
+            cache_hit=cached_resolution is not None,
         )
 
         if self.logger is not None:
             self.logger.log(action, decision)
 
         return decision
+
+    async def record_resolution(self, action: ProposedAction, resolution: Resolution) -> None:
+        """Records a human's answer so the same situation isn't asked twice.
+
+        Refuses hard-override actions with no exceptions -- matching the
+        decision that irreversible-write/external-effect categories are
+        never cached, regardless of what a human answered this one time.
+        """
+        if self.cache is None:
+            return
+        category, _source = await self.reversibility.classify(action)
+        if category in HARD_OVERRIDE_CATEGORIES:
+            raise ValueError("cannot cache a resolution for a hard-override action, no exceptions")
+        self.cache.record(action, resolution)
 
     def _aggregate(self, results: list[SignalResult]) -> float:
         total_weight = 0.0
