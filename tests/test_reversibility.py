@@ -139,6 +139,13 @@ HEURISTIC_CASES = [
     # whole-token matching: "widget" contains "get" as a substring but must
     # not match the READ_ONLY "get" keyword
     ("reset_widget_config", ActionCategory.REVERSIBLE_WRITE),
+    # the reversible/irreversible boundary is NOT hard-override-protected
+    # on the reversible side -- if a milder keyword ("edit") won over a
+    # destructive one ("delete") also present, this would score 0.35 and
+    # never force ask_human. Most-severe-match-wins must catch this.
+    ("edit_and_delete_entry", ActionCategory.IRREVERSIBLE_WRITE),
+    # same principle one severity level down: "update" must beat "get"
+    ("get_and_update_settings", ActionCategory.REVERSIBLE_WRITE),
 ]
 
 

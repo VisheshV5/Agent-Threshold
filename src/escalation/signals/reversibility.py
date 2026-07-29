@@ -68,11 +68,15 @@ _KEYWORDS: dict[ActionCategory, set[str]] = {
     },
 }
 
+# Checked most-severe-first: if a tool name contains keywords from more
+# than one category (e.g. "edit_and_delete_entry" has both "edit" and
+# "delete"), the more dangerous category wins rather than being masked
+# by a milder keyword also present.
 _CHECK_ORDER = [
-    ActionCategory.READ_ONLY,
-    ActionCategory.REVERSIBLE_WRITE,
-    ActionCategory.IRREVERSIBLE_WRITE,
     ActionCategory.EXTERNAL_EFFECT,
+    ActionCategory.IRREVERSIBLE_WRITE,
+    ActionCategory.REVERSIBLE_WRITE,
+    ActionCategory.READ_ONLY,
 ]
 
 
