@@ -7,16 +7,14 @@ Milestone 1/2, pending this adapter. Drop-in replacements: same
 protocol, same fail-safe philosophy on an unparseable response.
 """
 
-import re
 from typing import Protocol
 
+from escalation.adapters.parsing import parse_score
 from escalation.signals.blast_radius import HeuristicBlastRadiusEstimator
 from escalation.signals.reversibility import ActionCategory
 
 _CATEGORY_BY_VALUE = {category.value: category for category in ActionCategory}
 _CATEGORIES_BY_DESCENDING_LENGTH = sorted(ActionCategory, key=lambda c: -len(c.value))
-
-_NUMBER_PATTERN = re.compile(r"[-+]?\d*\.?\d+")
 
 
 class Completer(Protocol):
@@ -34,17 +32,6 @@ def _parse_category(text: str) -> ActionCategory:
         if category.value in normalized:
             return category
     return ActionCategory.IRREVERSIBLE_WRITE  # fail-safe, same as the heuristic
-
-
-def _parse_score(text: str, default: float) -> float:
-    match = _NUMBER_PATTERN.search(text)
-    if not match:
-        return default
-    try:
-        value = float(match.group())
-    except ValueError:
-        return default
-    return max(0.0, min(1.0, value))
 
 
 _CLASSIFY_PROMPT = """Classify this tool call by whether its effect can be undone. Respond with \
@@ -81,4 +68,4 @@ class AnthropicBlastRadiusEstimator:
     async def estimate(self, tool_name: str, arguments: dict) -> float:
         prompt = _ESTIMATE_PROMPT.format(tool_name=tool_name, arguments=arguments)
         response = await self._client.complete(prompt, max_tokens=10)
-        return _parse_score(response, default=HeuristicBlastRadiusEstimator.FALLBACK_SCORE)
+        return parse_score(response, default=HeuristicBlastRadiusEstimator.FALLBACK_SCORE)
