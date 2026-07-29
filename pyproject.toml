@@ -8,6 +8,7 @@ dependencies = [
     "anthropic>=0.120.2",
     "matplotlib>=3.11.1",
     "pydantic>=2.13.4",
+    "python-dotenv>=1.2.2",
 ]
 
 [build-system]

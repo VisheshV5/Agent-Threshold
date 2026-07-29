@@ -6,8 +6,11 @@ Requires a real ANTHROPIC_API_KEY and makes real, billed API calls --
 not something to run without knowing that up front.
 
 Usage:
-    export ANTHROPIC_API_KEY=sk-...
-    uv run python demo/cleanup_agent.py
+    Create a .env file in the project root containing:
+        ANTHROPIC_API_KEY=sk-...
+    (never committed -- see .gitignore) then:
+        uv run python demo/cleanup_agent.py
+    Or just export ANTHROPIC_API_KEY in your shell instead of using .env.
 
 The task is deliberately mixed: some obviously-junk temp files, and one
 file (quarterly_report.docx) that reads as important. Every delete is
@@ -24,6 +27,7 @@ import shutil
 from pathlib import Path
 
 import anthropic
+from dotenv import load_dotenv
 
 from demo.tools import execute_tool, setup_sandbox
 from escalation.adapters.agent import AnthropicAgent, ToolSpec
@@ -195,6 +199,11 @@ async def run_demo(api_key: str, state_dir: Path, run_dir: Path, profile: str, m
 
 
 def main() -> None:
+    # Loads ANTHROPIC_API_KEY from a .env file in the project root if
+    # present (never committed -- see .gitignore), so the key can be set
+    # by creating that file directly rather than pasting it anywhere.
+    load_dotenv()
+
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--profile", default="balanced", choices=["conservative", "balanced", "autonomous"])
     parser.add_argument("--max-turns", type=int, default=8)
@@ -204,7 +213,11 @@ def main() -> None:
 
     api_key = os.environ.get("ANTHROPIC_API_KEY")
     if not api_key:
-        raise SystemExit("ANTHROPIC_API_KEY is not set. This demo makes real, billed API calls -- export your key first.")
+        raise SystemExit(
+            "ANTHROPIC_API_KEY is not set. Create a .env file in the project root with "
+            "ANTHROPIC_API_KEY=sk-... (never committed), or export it in your shell. "
+            "This demo makes real, billed API calls."
+        )
 
     asyncio.run(run_demo(api_key, args.state_dir, args.run_dir, args.profile, args.max_turns))
 
