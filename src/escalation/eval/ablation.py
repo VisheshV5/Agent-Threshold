@@ -1,10 +1,12 @@
 """Per-signal ablation: how much does each signal actually change decisions?
 
 For each signal, builds a policy with that one signal removed (weight
-and all) and compares its verdicts against the full policy's. A signal
-whose removal changes nothing is currently just along for the ride --
-which the current scenario suite may reveal about novelty, staleness,
-and thrash specifically, since coverage of them is uneven.
+and all) and compares its verdicts against the caller's full policy.
+Reuses the SAME signal instances from that policy (not fresh ones) --
+critical for novelty specifically, since it carries state (a seeded
+NoveltyStore); rebuilding a bare NoveltySignal() from scratch would
+compare against an empty store and always show zero impact regardless
+of how the caller actually configured things.
 
 Ablating reversibility is a special case: it drives the hard override
 as well as the weighted average, so simply dropping its weight would
@@ -20,14 +22,7 @@ from escalation.eval.metrics import compute_metrics
 from escalation.eval.runner import run_scenarios
 from escalation.eval.scenario import Scenario
 from escalation.policy.policy import Policy
-from escalation.policy.profiles import DEFAULT_WEIGHTS, PROFILE_THRESHOLDS
-from escalation.signals.base import Signal
-from escalation.signals.blast_radius import BlastRadiusSignal
-from escalation.signals.novelty import NoveltySignal
 from escalation.signals.reversibility import ActionCategory, ReversibilitySignal
-from escalation.signals.self_consistency import SelfConsistencySignal
-from escalation.signals.staleness import StalenessSignal
-from escalation.signals.thrash import ThrashSignal
 
 
 class _NeutralFallbackClassifier:
@@ -41,34 +36,27 @@ def _neutral_reversibility() -> ReversibilitySignal:
     return ReversibilitySignal(registry={}, fallback=_NeutralFallbackClassifier())
 
 
-def _build_extra_signals() -> dict[str, Signal]:
-    return {
-        "blast_radius": BlastRadiusSignal(),
-        "self_consistency": SelfConsistencySignal(),
-        "novelty": NoveltySignal(),
-        "staleness": StalenessSignal(),
-        "thrash": ThrashSignal(),
-    }
-
-
-def _build_policy_excluding(signal_name: str, profile: str) -> Policy:
-    # Policy always includes reversibility as a mandatory signal
-    # regardless of extra_signals, so removing a weight key outright
-    # would raise "no weight configured" once that signal is still
-    # scored. Zeroing the weight is mathematically identical to full
-    # exclusion (contributes nothing to either the numerator or
-    # denominator) and works uniformly for all six signals.
-    weights = dict(DEFAULT_WEIGHTS)
+def _build_ablated_policy(full_policy: Policy, signal_name: str) -> Policy:
+    # Zeroing the weight (rather than removing the dict key) is
+    # mathematically identical to full exclusion and works uniformly for
+    # every signal, including reversibility -- which Policy always scores
+    # regardless of extra_signals, so dropping its key outright would
+    # raise "no weight configured" once it's still evaluated.
+    weights = dict(full_policy.weights)
     weights[signal_name] = 0.0
 
-    reversibility = _neutral_reversibility() if signal_name == "reversibility" else ReversibilitySignal()
-    extra = _build_extra_signals()
+    if signal_name == "reversibility":
+        reversibility = _neutral_reversibility()
+    else:
+        reversibility = full_policy.reversibility
+
+    extra_signals = full_policy.signals[1:]  # same instances -- preserves e.g. novelty's seeded store
 
     return Policy(
         reversibility=reversibility,
         weights=weights,
-        threshold=PROFILE_THRESHOLDS[profile],
-        extra_signals=list(extra.values()),
+        threshold=full_policy.threshold,
+        extra_signals=extra_signals,
     )
 
 
@@ -81,15 +69,14 @@ class AblationResult:
     accuracy_delta: float  # full - ablated; positive means removing it hurt accuracy
 
 
-async def run_ablation(scenarios: list[Scenario], profile: str = "balanced") -> list[AblationResult]:
-    full_policy = Policy.from_profile(profile)
+async def run_ablation(scenarios: list[Scenario], full_policy: Policy) -> list[AblationResult]:
     full_results = await run_scenarios(full_policy, scenarios)
     full_metrics = compute_metrics(full_results)
     full_verdicts = {r.scenario.id: r.decision.verdict for r in full_results}
 
     results = []
-    for signal_name in DEFAULT_WEIGHTS:
-        ablated_policy = _build_policy_excluding(signal_name, profile)
+    for signal_name in full_policy.weights:
+        ablated_policy = _build_ablated_policy(full_policy, signal_name)
         ablated_results = await run_scenarios(ablated_policy, scenarios)
         ablated_metrics = compute_metrics(ablated_results)
         verdict_changes = sum(
