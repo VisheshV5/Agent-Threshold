@@ -112,13 +112,25 @@ class ReversibilitySignal(Signal):
         category = await self._fallback.classify(action.tool_name, action.arguments)
         return category, "fallback"
 
-    async def score(self, action: ProposedAction) -> SignalResult:
-        start = time.perf_counter()
-        category, source = await self.classify(action)
-        cost_ms = int((time.perf_counter() - start) * 1000)
+    def result_from_classification(
+        self, action: ProposedAction, category: ActionCategory, source: str, cost_ms: int
+    ) -> SignalResult:
+        """Builds the SignalResult from an already-known classification.
+
+        Lets Policy reuse the single classify() call it already made for
+        the hard-override check, instead of classify() running a second
+        time inside score() -- harmless when classification is a free
+        heuristic, but a real cost when the fallback is a billed LLM call.
+        """
         return SignalResult(
             name=self.name,
             score=CATEGORY_SCORES[category],
             reason=f"'{action.tool_name}' classified as {category.value} via {source}",
             cost_ms=cost_ms,
         )
+
+    async def score(self, action: ProposedAction) -> SignalResult:
+        start = time.perf_counter()
+        category, source = await self.classify(action)
+        cost_ms = int((time.perf_counter() - start) * 1000)
+        return self.result_from_classification(action, category, source, cost_ms)

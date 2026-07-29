@@ -10,6 +10,8 @@ curve and for telling threshold-driven escalations apart from
 override-driven ones (Decision.hard_override_triggered).
 """
 
+import time
+
 from escalation.decision_cache import DecisionCache, Resolution
 from escalation.decision_log import DecisionLogger
 from escalation.policy.profiles import DEFAULT_WEIGHTS, PROFILE_THRESHOLDS
@@ -71,13 +73,17 @@ class Policy:
         )
 
     async def evaluate(self, action: ProposedAction) -> Decision:
-        category, _source = await self.reversibility.classify(action)
+        start = time.perf_counter()
+        category, source = await self.reversibility.classify(action)
         hard_override = category in HARD_OVERRIDE_CATEGORIES
 
         # hard-override actions never even consult the cache, no exceptions
         cached_resolution = self.cache.get(action) if (self.cache is not None and not hard_override) else None
 
-        results = [await signal.score(action) for signal in self.signals]
+        cost_ms = int((time.perf_counter() - start) * 1000)
+        reversibility_result = self.reversibility.result_from_classification(action, category, source, cost_ms)
+        other_results = [await signal.score(action) for signal in self.signals[1:]]
+        results = [reversibility_result, *other_results]
         aggregate = self._aggregate(results)
 
         if cached_resolution is not None:
