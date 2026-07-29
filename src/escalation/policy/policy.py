@@ -10,6 +10,7 @@ curve and for telling threshold-driven escalations apart from
 override-driven ones (Decision.hard_override_triggered).
 """
 
+from escalation.decision_log import DecisionLogger
 from escalation.policy.profiles import DEFAULT_WEIGHTS, PROFILE_THRESHOLDS
 from escalation.signals.base import Signal
 from escalation.signals.blast_radius import BlastRadiusSignal
@@ -25,11 +26,13 @@ class Policy:
         weights: dict[str, float],
         threshold: float,
         extra_signals: list[Signal] | None = None,
+        logger: DecisionLogger | None = None,
     ):
         self.reversibility = reversibility
         self.signals: list[Signal] = [reversibility, *(extra_signals or [])]
         self.weights = weights
         self.threshold = threshold
+        self.logger = logger
 
     @classmethod
     def from_profile(
@@ -38,6 +41,7 @@ class Policy:
         reversibility: ReversibilitySignal | None = None,
         blast_radius: BlastRadiusSignal | None = None,
         self_consistency: SelfConsistencySignal | None = None,
+        logger: DecisionLogger | None = None,
     ) -> "Policy":
         if profile not in PROFILE_THRESHOLDS:
             raise ValueError(f"unknown profile: {profile!r}, expected one of {sorted(PROFILE_THRESHOLDS)}")
@@ -49,6 +53,7 @@ class Policy:
                 blast_radius or BlastRadiusSignal(),
                 self_consistency or SelfConsistencySignal(),
             ],
+            logger=logger,
         )
 
     async def evaluate(self, action: ProposedAction) -> Decision:
@@ -64,13 +69,18 @@ class Policy:
             self._build_question(action, results, hard_override) if verdict == "ask_human" else None
         )
 
-        return Decision(
+        decision = Decision(
             verdict=verdict,
             aggregate_score=aggregate,
             signals=results,
             question=question,
             hard_override_triggered=hard_override,
         )
+
+        if self.logger is not None:
+            self.logger.log(action, decision)
+
+        return decision
 
     def _aggregate(self, results: list[SignalResult]) -> float:
         total_weight = 0.0
