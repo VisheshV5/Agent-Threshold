@@ -10,9 +10,11 @@ curve and for telling threshold-driven escalations apart from
 override-driven ones (Decision.hard_override_triggered).
 """
 
-from escalation.policy.profiles import PROFILE_THRESHOLDS
+from escalation.policy.profiles import DEFAULT_WEIGHTS, PROFILE_THRESHOLDS
 from escalation.signals.base import Signal
+from escalation.signals.blast_radius import BlastRadiusSignal
 from escalation.signals.reversibility import HARD_OVERRIDE_CATEGORIES, ReversibilitySignal
+from escalation.signals.self_consistency import SelfConsistencySignal
 from escalation.types import Decision, HumanQuestion, ProposedAction, SignalResult
 
 
@@ -30,13 +32,23 @@ class Policy:
         self.threshold = threshold
 
     @classmethod
-    def from_profile(cls, profile: str, reversibility: ReversibilitySignal | None = None) -> "Policy":
+    def from_profile(
+        cls,
+        profile: str,
+        reversibility: ReversibilitySignal | None = None,
+        blast_radius: BlastRadiusSignal | None = None,
+        self_consistency: SelfConsistencySignal | None = None,
+    ) -> "Policy":
         if profile not in PROFILE_THRESHOLDS:
             raise ValueError(f"unknown profile: {profile!r}, expected one of {sorted(PROFILE_THRESHOLDS)}")
         return cls(
             reversibility=reversibility or ReversibilitySignal(),
-            weights={"reversibility": 1.0},
+            weights=DEFAULT_WEIGHTS,
             threshold=PROFILE_THRESHOLDS[profile],
+            extra_signals=[
+                blast_radius or BlastRadiusSignal(),
+                self_consistency or SelfConsistencySignal(),
+            ],
         )
 
     async def evaluate(self, action: ProposedAction) -> Decision:
