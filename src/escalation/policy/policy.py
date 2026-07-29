@@ -14,8 +14,11 @@ from escalation.decision_log import DecisionLogger
 from escalation.policy.profiles import DEFAULT_WEIGHTS, PROFILE_THRESHOLDS
 from escalation.signals.base import Signal
 from escalation.signals.blast_radius import BlastRadiusSignal
+from escalation.signals.novelty import NoveltySignal
 from escalation.signals.reversibility import HARD_OVERRIDE_CATEGORIES, ReversibilitySignal
 from escalation.signals.self_consistency import SelfConsistencySignal
+from escalation.signals.staleness import StalenessSignal
+from escalation.signals.thrash import ThrashSignal
 from escalation.types import Decision, HumanQuestion, ProposedAction, SignalResult
 
 
@@ -41,6 +44,9 @@ class Policy:
         reversibility: ReversibilitySignal | None = None,
         blast_radius: BlastRadiusSignal | None = None,
         self_consistency: SelfConsistencySignal | None = None,
+        novelty: NoveltySignal | None = None,
+        staleness: StalenessSignal | None = None,
+        thrash: ThrashSignal | None = None,
         logger: DecisionLogger | None = None,
     ) -> "Policy":
         if profile not in PROFILE_THRESHOLDS:
@@ -52,6 +58,9 @@ class Policy:
             extra_signals=[
                 blast_radius or BlastRadiusSignal(),
                 self_consistency or SelfConsistencySignal(),
+                novelty or NoveltySignal(),
+                staleness or StalenessSignal(),
+                thrash or ThrashSignal(),
             ],
             logger=logger,
         )

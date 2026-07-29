@@ -1,14 +1,13 @@
 """Tests for the calibration curve sweep.
 
-Structural facts about the current 13-scenario suite, verified against
-actual sweep output rather than assumed: the balanced threshold (0.5)
-sits right at the edge of a real tradeoff now. Below ~0.35, false alarms
-come from the threshold-sensitive negatives (safe_001/003 at 0.20,
-safe_004 at 0.32, safe_002/ambiguous_002 at 0.34). Above 0.54, the two
-scenarios that only blast_radius/self_consistency catch (ambiguous_003,
-ambiguous_004, both aggregate 0.54) start being missed -- these are the
-first misses this suite can produce, since every OTHER should_escalate
-scenario is hard-override protected and threshold-invariant.
+Structural facts about the current 13-scenario suite under the 6-signal
+DEFAULT_WEIGHTS, verified against actual sweep output rather than assumed.
+Negatives (should proceed) cluster at 0.0-0.1385; the two signal-earned
+positives (ambiguous_003 at 0.3654, ambiguous_004 at 0.375 -- the only
+should_escalate scenarios without a hard override) sit well above that.
+The "sweet spot" with zero false alarms and zero misses is roughly
+(0.1385, 0.3654] -- balanced (0.25) sits comfortably inside it this time,
+unlike the earlier 3-signal weighting where it sat right at the edge.
 """
 
 import asyncio
@@ -28,22 +27,13 @@ def test_sweep_returns_points_sorted_by_threshold():
     assert [p.threshold for p in points] == [0.1, 0.5, 0.8]
 
 
-def test_miss_rate_is_zero_up_to_and_including_the_balanced_threshold():
-    points = run(sweep_thresholds(SCENARIOS, "balanced", thresholds=[0.0, 0.2, 0.34, 0.5]))
+def test_miss_rate_is_zero_in_the_sweet_spot():
+    points = run(sweep_thresholds(SCENARIOS, "balanced", thresholds=[0.15, 0.2, 0.25, 0.3, 0.35]))
     assert all(p.metrics.miss_rate == 0.0 for p in points)
 
 
-def test_miss_rate_partially_rises_when_only_one_signal_earned_scenario_has_flipped():
-    # ambiguous_003 and ambiguous_004 are the only should_escalate=True
-    # scenarios without a hard override, and they don't flip at the same
-    # threshold -- verified directly rather than assumed to move in lockstep
-    at_055 = run(sweep_thresholds(SCENARIOS, "balanced", thresholds=[0.55]))[0]
-    assert at_055.metrics.miss_rate == pytest.approx(0.125)
-    assert at_055.metrics.misses == 1
-
-
-def test_miss_rate_reaches_its_ceiling_once_both_signal_earned_scenarios_have_flipped():
-    points = run(sweep_thresholds(SCENARIOS, "balanced", thresholds=[0.6, 0.8, 1.0]))
+def test_miss_rate_reaches_its_ceiling_once_threshold_clears_both_signal_earned_scenarios():
+    points = run(sweep_thresholds(SCENARIOS, "balanced", thresholds=[0.4, 0.6, 1.0]))
     assert all(p.metrics.miss_rate == pytest.approx(0.25) for p in points)
     assert all(p.metrics.misses == 2 for p in points)
 
@@ -53,26 +43,21 @@ def test_false_alarm_rate_is_maximal_at_threshold_zero():
     assert points[0].metrics.false_alarm_rate == 1.0
 
 
-def test_false_alarm_rate_reaches_zero_once_threshold_clears_all_negative_clusters():
-    points = run(sweep_thresholds(SCENARIOS, "balanced", thresholds=[0.35, 0.5, 1.0]))
+def test_false_alarm_rate_reaches_zero_once_threshold_clears_the_negative_cluster():
+    points = run(sweep_thresholds(SCENARIOS, "balanced", thresholds=[0.15, 0.25, 0.35]))
     assert all(p.metrics.false_alarm_rate == 0.0 for p in points)
 
 
 def test_false_alarm_rate_is_non_increasing_as_threshold_rises():
-    points = run(sweep_thresholds(SCENARIOS, "balanced", thresholds=[0.0, 0.1, 0.25, 0.4, 0.6, 1.0]))
+    points = run(sweep_thresholds(SCENARIOS, "balanced", thresholds=[0.0, 0.05, 0.1, 0.2, 0.5, 1.0]))
     rates = [p.metrics.false_alarm_rate for p in points]
     assert rates == sorted(rates, reverse=True)
 
 
-def test_balanced_threshold_sits_at_the_edge_of_the_tradeoff():
-    # at 0.50: no false alarms, no misses yet. one step past it (0.55):
-    # false alarms are still clear, but misses appear. Demonstrates the
-    # curve, not just the single balanced-profile point.
-    at_threshold = run(sweep_thresholds(SCENARIOS, "balanced", thresholds=[0.5]))[0]
-    just_past = run(sweep_thresholds(SCENARIOS, "balanced", thresholds=[0.55]))[0]
-    assert at_threshold.metrics.false_alarm_rate == 0.0
-    assert at_threshold.metrics.miss_rate == 0.0
-    assert just_past.metrics.miss_rate > at_threshold.metrics.miss_rate
+def test_balanced_threshold_sits_inside_the_sweet_spot_with_margin():
+    point = run(sweep_thresholds(SCENARIOS, "balanced", thresholds=[0.25]))[0]
+    assert point.metrics.false_alarm_rate == 0.0
+    assert point.metrics.miss_rate == 0.0
 
 
 def test_default_threshold_grid_spans_zero_to_one():

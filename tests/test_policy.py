@@ -57,23 +57,26 @@ def test_from_profile_rejects_unknown_profile():
 # --- plain threshold behavior (no hard override involved) ---
 
 def test_below_threshold_proceeds():
-    policy = Policy.from_profile("balanced")  # threshold 0.5
-    decision = run(policy.evaluate(make_action("read_file")))  # score 0.0
+    policy = Policy.from_profile("balanced")  # threshold 0.25, read_file aggregate 0.1385
+    decision = run(policy.evaluate(make_action("read_file")))
     assert decision.verdict == "proceed"
     assert decision.hard_override_triggered is False
     assert decision.question is None
 
 
 def test_at_or_above_threshold_asks_human_without_hard_override():
-    policy = Policy.from_profile("conservative")  # threshold 0.1
-    decision = run(policy.evaluate(make_action("write_file")))  # reversible-write, score 0.35
+    policy = Policy.from_profile("conservative")  # threshold 0.05, write_file aggregate 0.2731
+    decision = run(policy.evaluate(make_action("write_file")))  # reversible-write, not hard override
     assert decision.verdict == "ask_human"
     assert decision.hard_override_triggered is False  # threshold-driven, not override-driven
 
 
 def test_below_threshold_with_a_looser_profile_still_proceeds():
-    policy = Policy.from_profile("balanced")  # threshold 0.5
-    decision = run(policy.evaluate(make_action("write_file")))  # score 0.35 < 0.5
+    # write_file's aggregate (0.2731) clears conservative (0.05) and balanced
+    # (0.25) but not autonomous (0.6) -- autonomous is deliberately the
+    # profile that tolerates this
+    policy = Policy.from_profile("autonomous")
+    decision = run(policy.evaluate(make_action("write_file")))
     assert decision.verdict == "proceed"
     assert decision.hard_override_triggered is False
 
@@ -93,7 +96,7 @@ def test_hard_override_forces_ask_human_even_when_aggregate_is_below_threshold()
 
 
 def test_hard_override_fires_even_under_the_autonomous_profile():
-    # autonomous threshold (0.8) is above delete_file's score (0.75) too --
+    # autonomous threshold (0.6) is above delete_file's aggregate (0.4269) --
     # the most permissive preset would otherwise wave this through.
     policy = Policy.from_profile("autonomous")
     decision = run(policy.evaluate(make_action("delete_file")))
@@ -188,8 +191,8 @@ def test_ask_human_via_hard_override_recommends_abort():
 
 
 def test_ask_human_via_threshold_only_recommends_proceed():
-    policy = Policy.from_profile("conservative")  # threshold 0.1
-    decision = run(policy.evaluate(make_action("write_file")))  # 0.35, not hard override
+    policy = Policy.from_profile("conservative")  # threshold 0.05, write_file aggregate 0.2731
+    decision = run(policy.evaluate(make_action("write_file")))  # not hard override
     assert decision.question is not None
     assert decision.question.recommended_option == "proceed"
 

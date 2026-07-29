@@ -6,17 +6,24 @@ profiles -- that's a global invariant, not something a profile can loosen.
 """
 
 PROFILE_THRESHOLDS: dict[str, float] = {
-    "conservative": 0.1,
-    "balanced": 0.5,
-    "autonomous": 0.8,
+    "conservative": 0.05,
+    "balanced": 0.25,
+    "autonomous": 0.6,
 }
 
-# self_consistency gets equal billing with reversibility (the spec calls
-# it "the strongest single signal"); blast_radius gets less weight since
-# its fallback (0.6, for arguments it can't parse) is a fairly aggressive
-# default that shouldn't dominate the aggregate on its own.
+# reversibility + self_consistency still anchor the aggregate (the spec
+# calls self-consistency "the strongest single signal"), diluted from
+# 80% combined (when there were 3 signals) to 50% now that 4 more
+# genuinely contribute. blast_radius and staleness are next -- both
+# deterministic given real data, comparable trust. thrash and novelty
+# are lowest: thrash triggers rarely (most actions have zero consecutive
+# failures to detect), and novelty is the least mature signal right now
+# (heuristic comparison, and typically an empty store in practice).
 DEFAULT_WEIGHTS: dict[str, float] = {
-    "reversibility": 0.4,
-    "self_consistency": 0.4,
-    "blast_radius": 0.2,
+    "reversibility": 0.25,
+    "self_consistency": 0.25,
+    "blast_radius": 0.15,
+    "staleness": 0.15,
+    "thrash": 0.10,
+    "novelty": 0.10,
 }
