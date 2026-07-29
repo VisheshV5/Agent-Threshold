@@ -70,3 +70,4 @@ class Decision(BaseModel):
     signals: list[SignalResult]
     question: HumanQuestion | None = None
     hard_override_triggered: bool = False
+    cache_hit: bool = False
