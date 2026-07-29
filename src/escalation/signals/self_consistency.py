@@ -67,6 +67,7 @@ class SelfConsistencySignal(Signal):
                 score=self.MISSING_DATA_SCORE,
                 reason="no alternative samples available; self-consistency could not be assessed",
                 cost_ms=cost_ms,
+                informative=False,
             )
 
         similarities = [

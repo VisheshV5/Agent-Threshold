@@ -31,12 +31,20 @@ class ProposedAction(BaseModel):
 
 
 class SignalResult(BaseModel):
-    """Output of a single signal for a single proposed action."""
+    """Output of a single signal for a single proposed action.
+
+    informative=False means the signal genuinely had nothing to assess
+    (e.g. self-consistency with zero alternative samples, novelty with
+    an empty store) -- score is still a valid float (for logging/display)
+    but the policy's weighted average excludes it, so an "I don't know"
+    doesn't get averaged in as if it were a real answer.
+    """
 
     name: str
     score: float = Field(ge=0.0, le=1.0)
     reason: str
     cost_ms: int = Field(ge=0)
+    informative: bool = True
 
 
 class HumanQuestion(BaseModel):

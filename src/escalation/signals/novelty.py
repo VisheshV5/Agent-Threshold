@@ -106,6 +106,7 @@ class NoveltySignal(Signal):
                 score=self.MISSING_DATA_SCORE,
                 reason="novelty store is empty; nothing to compare against",
                 cost_ms=cost_ms,
+                informative=False,
             )
 
         score = 1.0 - similarity

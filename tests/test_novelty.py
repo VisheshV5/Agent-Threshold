@@ -80,6 +80,15 @@ def test_empty_store_returns_missing_data_score():
     result = run(signal.score(make_action("read_file")))
     assert result.score == pytest.approx(0.5)
     assert "empty" in result.reason.lower()
+    assert result.informative is False  # policy must exclude this from the weighted average
+
+
+def test_real_computation_is_marked_informative():
+    store = NoveltyStore()
+    store.record_success(["read_file"])
+    signal = NoveltySignal(store=store)
+    result = run(signal.score(make_action("read_file")))
+    assert result.informative is True
 
 
 def test_exact_match_to_a_past_trajectory_is_not_novel():

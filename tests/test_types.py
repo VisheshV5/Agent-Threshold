@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from escalation.types import HumanQuestion, ProposedAction
+from escalation.types import HumanQuestion, ProposedAction, SignalResult
 
 
 def test_human_question_accepts_recommended_option_in_options():
@@ -40,3 +40,13 @@ def test_proposed_action_accepts_nested_alternative_actions():
     assert len(primary.alternative_actions) == 1
     assert primary.alternative_actions[0].tool_name == "delete_file"
     assert primary.alternative_actions[0].arguments == {"path": "/a"}
+
+
+def test_signal_result_informative_defaults_true():
+    result = SignalResult(name="reversibility", score=0.5, reason="test", cost_ms=0)
+    assert result.informative is True
+
+
+def test_signal_result_informative_can_be_set_false():
+    result = SignalResult(name="self_consistency", score=0.5, reason="no data", cost_ms=0, informative=False)
+    assert result.informative is False

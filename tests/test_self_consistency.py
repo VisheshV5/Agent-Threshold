@@ -57,6 +57,15 @@ def test_no_alternatives_returns_missing_data_score_not_zero():
     result = run(signal.score(action))
     assert result.score == pytest.approx(0.5)
     assert "no alternative" in result.reason.lower()
+    assert result.informative is False  # policy must exclude this from the weighted average
+
+
+def test_real_computation_is_marked_informative():
+    alt = make_action("read_file", {"path": "/x"})
+    primary = make_action("read_file", {"path": "/x"}, alternatives=[alt])
+    signal = SelfConsistencySignal()
+    result = run(signal.score(primary))
+    assert result.informative is True
 
 
 # --- real computation with the default heuristic scorer ---
