@@ -22,6 +22,12 @@ class ProposedAction(BaseModel):
     agent_reasoning: str
     trajectory: list[Step] = Field(default_factory=list)
     context_age_steps: dict[str, int] = Field(default_factory=dict)
+    # Pre-sampled candidates for the same decision point, gathered by
+    # whoever constructs this ProposedAction (an adapter re-invoking the
+    # agent at temperature, or hand-authored scenario data) -- not a live
+    # callback, so this stays plain, JSONL-serializable data. Used by the
+    # self-consistency signal; empty when resampling wasn't performed.
+    alternative_actions: list["ProposedAction"] = Field(default_factory=list)
 
 
 class SignalResult(BaseModel):
