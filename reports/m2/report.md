@@ -1,4 +1,4 @@
-# Milestone 2 calibration curve (balanced profile, 13 scenarios, 6 signals)
+# Milestone 2 calibration curve (balanced profile, 13 scenarios, seeded novelty)
 
 Scenarios: 13 | Threshold points: 21
 
@@ -13,7 +13,7 @@ Scenarios: 13 | Threshold points: 21
 | 0.20 | 0% | 0% | 100% | 8 | 5 | 0 | 0 |
 | 0.25 | 0% | 0% | 100% | 8 | 5 | 0 | 0 |
 | 0.30 | 0% | 0% | 100% | 8 | 5 | 0 | 0 |
-| 0.35 | 0% | 0% | 100% | 8 | 5 | 0 | 0 |
+| 0.35 | 0% | 25% | 85% | 6 | 5 | 0 | 2 |
 | 0.40 | 0% | 25% | 85% | 6 | 5 | 0 | 2 |
 | 0.45 | 0% | 25% | 85% | 6 | 5 | 0 | 2 |
 | 0.50 | 0% | 25% | 85% | 6 | 5 | 0 | 2 |

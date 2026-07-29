@@ -10,13 +10,10 @@ either way.
 
 from dataclasses import dataclass
 
+from escalation.eval.eval_policy import build_eval_policy
 from escalation.eval.metrics import Metrics, compute_metrics
 from escalation.eval.runner import run_scenarios
 from escalation.eval.scenario import Scenario
-from escalation.policy.policy import Policy
-from escalation.signals.blast_radius import BlastRadiusSignal
-from escalation.signals.reversibility import ReversibilitySignal
-from escalation.signals.self_consistency import SelfConsistencySignal
 
 
 @dataclass
@@ -36,18 +33,12 @@ async def sweep_thresholds(
 ) -> list[CalibrationPoint]:
     thresholds = sorted(thresholds if thresholds is not None else _default_thresholds())
 
-    reversibility = ReversibilitySignal()
-    blast_radius = BlastRadiusSignal()
-    self_consistency = SelfConsistencySignal()
+    # one policy (and its seeded novelty store) reused across every
+    # threshold point -- only policy.threshold changes per point
+    policy = build_eval_policy(profile)
 
     points = []
     for threshold in thresholds:
-        policy = Policy.from_profile(
-            profile,
-            reversibility=reversibility,
-            blast_radius=blast_radius,
-            self_consistency=self_consistency,
-        )
         policy.threshold = threshold
         results = await run_scenarios(policy, scenarios)
         points.append(CalibrationPoint(threshold=threshold, metrics=compute_metrics(results)))
