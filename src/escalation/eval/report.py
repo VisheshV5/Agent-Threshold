@@ -7,10 +7,16 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
+from escalation.eval.ablation import AblationResult
 from escalation.eval.calibration import CalibrationPoint
 
 
-def render_calibration_report(points: list[CalibrationPoint], output_dir: Path, title: str) -> None:
+def render_calibration_report(
+    points: list[CalibrationPoint],
+    output_dir: Path,
+    title: str,
+    ablation_results: list[AblationResult] | None = None,
+) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
     chart_path = output_dir / "calibration_curve.png"
     report_path = output_dir / "report.md"
@@ -48,4 +54,22 @@ def render_calibration_report(points: list[CalibrationPoint], output_dir: Path, 
             f"| {p.threshold:.2f} | {m.false_alarm_rate:.0%} | {m.miss_rate:.0%} | {m.accuracy:.0%} "
             f"| {m.true_positives} | {m.true_negatives} | {m.false_alarms} | {m.misses} |"
         )
+
+    if ablation_results is not None:
+        lines += [
+            "",
+            "## Per-signal ablation",
+            "",
+            "How much each signal actually carries the decision: verdict changes and accuracy",
+            "impact when that signal alone is removed from the weighted average (and, for",
+            "reversibility, from hard override too).",
+            "",
+            "| signal | verdict changes | accuracy without it | accuracy delta |",
+            "|---|---|---|---|",
+        ]
+        for r in sorted(ablation_results, key=lambda r: -r.accuracy_delta):
+            lines.append(
+                f"| {r.signal_name} | {r.verdict_changes} | {r.ablated_accuracy:.0%} | {r.accuracy_delta:.3f} |"
+            )
+
     report_path.write_text("\n".join(lines) + "\n")

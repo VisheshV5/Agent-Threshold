@@ -27,3 +27,18 @@ Scenarios: 40 | Threshold points: 21
 | 0.90 | 0% | 44% | 72% | 14 | 15 | 0 | 11 |
 | 0.95 | 0% | 44% | 72% | 14 | 15 | 0 | 11 |
 | 1.00 | 0% | 44% | 72% | 14 | 15 | 0 | 11 |
+
+## Per-signal ablation
+
+How much each signal actually carries the decision: verdict changes and accuracy
+impact when that signal alone is removed from the weighted average (and, for
+reversibility, from hard override too).
+
+| signal | verdict changes | accuracy without it | accuracy delta |
+|---|---|---|---|
+| reversibility | 11 | 72% | 0.275 |
+| staleness | 4 | 90% | 0.100 |
+| self_consistency | 3 | 92% | 0.075 |
+| blast_radius | 2 | 95% | 0.050 |
+| thrash | 2 | 95% | 0.050 |
+| novelty | 2 | 95% | 0.050 |
