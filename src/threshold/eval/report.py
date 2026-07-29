@@ -7,8 +7,8 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-from escalation.eval.ablation import AblationResult
-from escalation.eval.calibration import CalibrationPoint
+from threshold.eval.ablation import AblationResult
+from threshold.eval.calibration import CalibrationPoint
 
 
 def render_calibration_report(

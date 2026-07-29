@@ -17,8 +17,8 @@ import asyncio
 
 import pytest
 
-from escalation.eval.calibration import sweep_thresholds
-from escalation.eval.data.scenarios_m1 import SCENARIOS
+from threshold.eval.calibration import sweep_thresholds
+from threshold.eval.data.scenarios_m1 import SCENARIOS
 
 
 def run(coro):

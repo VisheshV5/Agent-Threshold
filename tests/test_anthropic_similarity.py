@@ -15,8 +15,8 @@ import asyncio
 
 import pytest
 
-from escalation.adapters.similarity import AnthropicSimilarityScorer, AnthropicTrajectorySimilarityScorer
-from escalation.types import ProposedAction
+from threshold.adapters.similarity import AnthropicSimilarityScorer, AnthropicTrajectorySimilarityScorer
+from threshold.types import ProposedAction
 
 
 def run(coro):

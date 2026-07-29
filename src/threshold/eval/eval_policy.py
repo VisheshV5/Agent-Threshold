@@ -12,8 +12,8 @@ scenarios built specifically to demonstrate novelty use trajectory
 shapes that don't match anything here.
 """
 
-from escalation.policy.policy import Policy
-from escalation.signals.novelty import NoveltySignal, NoveltyStore
+from threshold.policy.policy import Policy
+from threshold.signals.novelty import NoveltySignal, NoveltyStore
 
 SEED_TRAJECTORIES: list[list[str]] = [
     ["read_file"],

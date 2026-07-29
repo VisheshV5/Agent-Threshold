@@ -10,9 +10,9 @@ non-registry classification.
 
 import asyncio
 
-from escalation.policy.policy import Policy
-from escalation.signals.reversibility import ReversibilitySignal
-from escalation.types import ProposedAction
+from threshold.policy.policy import Policy
+from threshold.signals.reversibility import ReversibilitySignal
+from threshold.types import ProposedAction
 
 
 def run(coro):

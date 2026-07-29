@@ -2,8 +2,8 @@ import asyncio
 
 import pytest
 
-from escalation.eval.eval_policy import SEED_TRAJECTORIES, build_eval_policy, build_seeded_novelty_store
-from escalation.types import ProposedAction
+from threshold.eval.eval_policy import SEED_TRAJECTORIES, build_eval_policy, build_seeded_novelty_store
+from threshold.types import ProposedAction
 
 
 def run(coro):

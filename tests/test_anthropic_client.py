@@ -10,7 +10,7 @@ Pins the API surface:
 
 import asyncio
 
-from escalation.adapters.anthropic_client import AnthropicClient
+from threshold.adapters.anthropic_client import AnthropicClient
 
 
 def run(coro):

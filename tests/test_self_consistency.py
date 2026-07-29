@@ -16,12 +16,12 @@ import asyncio
 
 import pytest
 
-from escalation.signals.base import Signal
-from escalation.signals.self_consistency import (
+from threshold.signals.base import Signal
+from threshold.signals.self_consistency import (
     HeuristicSimilarityScorer,
     SelfConsistencySignal,
 )
-from escalation.types import ProposedAction
+from threshold.types import ProposedAction
 
 
 def make_action(tool_name: str, arguments: dict | None = None, alternatives: list[ProposedAction] | None = None) -> ProposedAction:

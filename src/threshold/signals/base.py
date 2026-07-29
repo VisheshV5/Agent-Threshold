@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 
-from escalation.types import ProposedAction, SignalResult
+from threshold.types import ProposedAction, SignalResult
 
 
 class Signal(ABC):

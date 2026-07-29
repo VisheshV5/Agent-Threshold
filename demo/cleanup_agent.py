@@ -1,5 +1,5 @@
 """End-to-end demo: an Anthropic-backed agent cleaning up a sandboxed
-directory, every proposed action gated through the full escalation
+directory, every proposed action gated through the full threshold
 Policy (all six signals, hard override, decision caching).
 
 Requires a real ANTHROPIC_API_KEY and makes real, billed API calls --
@@ -30,20 +30,20 @@ import anthropic
 from dotenv import load_dotenv
 
 from demo.tools import execute_tool, setup_sandbox
-from escalation.adapters.agent import AnthropicAgent, ToolSpec
-from escalation.adapters.anthropic_client import AnthropicClient
-from escalation.adapters.classifiers import AnthropicBlastRadiusEstimator, AnthropicFallbackClassifier
-from escalation.adapters.similarity import AnthropicSimilarityScorer, AnthropicTrajectorySimilarityScorer
-from escalation.decision_cache import DecisionCache
-from escalation.decision_log import DecisionLogger
-from escalation.policy.policy import Policy
-from escalation.signals.blast_radius import BlastRadiusSignal
-from escalation.signals.novelty import NoveltySignal, NoveltyStore
-from escalation.signals.reversibility import ReversibilitySignal
-from escalation.signals.self_consistency import SelfConsistencySignal
-from escalation.signals.staleness import StalenessSignal
-from escalation.signals.thrash import ThrashSignal
-from escalation.types import ProposedAction, Step
+from threshold.adapters.agent import AnthropicAgent, ToolSpec
+from threshold.adapters.anthropic_client import AnthropicClient
+from threshold.adapters.classifiers import AnthropicBlastRadiusEstimator, AnthropicFallbackClassifier
+from threshold.adapters.similarity import AnthropicSimilarityScorer, AnthropicTrajectorySimilarityScorer
+from threshold.decision_cache import DecisionCache
+from threshold.decision_log import DecisionLogger
+from threshold.policy.policy import Policy
+from threshold.signals.blast_radius import BlastRadiusSignal
+from threshold.signals.novelty import NoveltySignal, NoveltyStore
+from threshold.signals.reversibility import ReversibilitySignal
+from threshold.signals.self_consistency import SelfConsistencySignal
+from threshold.signals.staleness import StalenessSignal
+from threshold.signals.thrash import ThrashSignal
+from threshold.types import ProposedAction, Step
 
 TOOLS = [
     ToolSpec(

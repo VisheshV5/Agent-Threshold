@@ -29,12 +29,12 @@ novelty/staleness/thrash all carried zero weight.
 
 import asyncio
 
-from escalation.eval.ablation import _build_ablated_policy, run_ablation
-from escalation.eval.data.scenarios_m1 import SCENARIOS
-from escalation.eval.eval_policy import build_eval_policy
-from escalation.policy.policy import Policy
-from escalation.signals.novelty import NoveltySignal, NoveltyStore
-from escalation.types import ProposedAction
+from threshold.eval.ablation import _build_ablated_policy, run_ablation
+from threshold.eval.data.scenarios_m1 import SCENARIOS
+from threshold.eval.eval_policy import build_eval_policy
+from threshold.policy.policy import Policy
+from threshold.signals.novelty import NoveltySignal, NoveltyStore
+from threshold.types import ProposedAction
 
 ALL_SIGNAL_NAMES = {"reversibility", "blast_radius", "self_consistency", "novelty", "staleness", "thrash"}
 

@@ -18,11 +18,11 @@ so both mechanisms lose its input.
 
 from dataclasses import dataclass
 
-from escalation.eval.metrics import compute_metrics
-from escalation.eval.runner import run_scenarios
-from escalation.eval.scenario import Scenario
-from escalation.policy.policy import Policy
-from escalation.signals.reversibility import ActionCategory, ReversibilitySignal
+from threshold.eval.metrics import compute_metrics
+from threshold.eval.runner import run_scenarios
+from threshold.eval.scenario import Scenario
+from threshold.policy.policy import Policy
+from threshold.signals.reversibility import ActionCategory, ReversibilitySignal
 
 
 class _NeutralFallbackClassifier:

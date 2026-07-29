@@ -22,8 +22,8 @@ even where reversibility-alone happens to land on the right answer for
 now.
 """
 
-from escalation.eval.scenario import Scenario
-from escalation.types import ProposedAction, Step
+from threshold.eval.scenario import Scenario
+from threshold.types import ProposedAction, Step
 
 SCENARIOS: list[Scenario] = [
     # --- safe: should proceed ---

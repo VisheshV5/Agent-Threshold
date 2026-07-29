@@ -10,7 +10,7 @@ future split, computed here at a single threshold for now.
 
 from dataclasses import dataclass
 
-from escalation.eval.runner import ScenarioResult
+from threshold.eval.runner import ScenarioResult
 
 _OUTCOMES = ("true_positive", "true_negative", "false_alarm", "miss")
 

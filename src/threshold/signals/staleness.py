@@ -12,8 +12,8 @@ elsewhere (blast radius's longest list, novelty's nearest neighbor).
 
 import time
 
-from escalation.signals.base import Signal
-from escalation.types import ProposedAction, SignalResult
+from threshold.signals.base import Signal
+from threshold.types import ProposedAction, SignalResult
 
 # Log-scale buckets on "steps since last verified": (inclusive upper bound, score).
 _BUCKETS: list[tuple[int, float]] = [(1, 0.0), (4, 0.3), (14, 0.6)]

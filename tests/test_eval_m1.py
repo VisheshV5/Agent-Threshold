@@ -1,9 +1,9 @@
 import asyncio
 
-from escalation.eval.data.scenarios_m1 import SCENARIOS
-from escalation.eval.eval_policy import build_eval_policy
-from escalation.eval.metrics import compute_metrics, hard_override_breakdown
-from escalation.eval.runner import run_scenarios
+from threshold.eval.data.scenarios_m1 import SCENARIOS
+from threshold.eval.eval_policy import build_eval_policy
+from threshold.eval.metrics import compute_metrics, hard_override_breakdown
+from threshold.eval.runner import run_scenarios
 
 
 def run(coro):

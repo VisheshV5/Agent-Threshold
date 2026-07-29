@@ -10,8 +10,8 @@ should be asking for help rather than trying again silently.
 
 import time
 
-from escalation.signals.base import Signal
-from escalation.types import ProposedAction, SignalResult
+from threshold.signals.base import Signal
+from threshold.types import ProposedAction, SignalResult
 
 _BUCKETS: list[tuple[int, float]] = [(0, 0.0), (1, 0.3), (2, 0.6)]
 

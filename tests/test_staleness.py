@@ -16,9 +16,9 @@ import asyncio
 
 import pytest
 
-from escalation.signals.base import Signal
-from escalation.signals.staleness import StalenessSignal
-from escalation.types import ProposedAction
+from threshold.signals.base import Signal
+from threshold.signals.staleness import StalenessSignal
+from threshold.types import ProposedAction
 
 
 def make_action(context_age_steps: dict[str, int] | None = None) -> ProposedAction:

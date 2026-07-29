@@ -12,10 +12,10 @@ Pins the API surface:
 import asyncio
 import json
 
-from escalation.decision_log import DecisionLogger
-from escalation.policy.policy import Policy
-from escalation.signals.reversibility import ReversibilitySignal
-from escalation.types import ProposedAction
+from threshold.decision_log import DecisionLogger
+from threshold.policy.policy import Policy
+from threshold.signals.reversibility import ReversibilitySignal
+from threshold.types import ProposedAction
 
 
 def make_action(tool_name: str, arguments: dict | None = None) -> ProposedAction:
@@ -89,8 +89,8 @@ def test_policy_with_logger_logs_every_evaluate_call(tmp_path):
 
 
 def test_policy_logs_every_signal_even_when_hard_override_decides_the_verdict(tmp_path):
-    from escalation.signals.blast_radius import BlastRadiusSignal
-    from escalation.signals.self_consistency import SelfConsistencySignal
+    from threshold.signals.blast_radius import BlastRadiusSignal
+    from threshold.signals.self_consistency import SelfConsistencySignal
 
     logger = DecisionLogger(tmp_path / "decisions.jsonl")
     policy = Policy(

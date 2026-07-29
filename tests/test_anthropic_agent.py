@@ -1,7 +1,7 @@
 """Tests for the Anthropic-backed agent, written before the implementation.
 
 This is the piece that resolves the architectural question raised when
-self-consistency was designed (Milestone 2): the escalation library
+self-consistency was designed (Milestone 2): the threshold library
 only ever sees a ProposedAction, never a live hook into an agent's
 inference step. This agent IS that hook -- the boundary where a real
 model call happens and gets converted into the library's plain-data
@@ -21,8 +21,8 @@ Pins the API surface:
 
 import asyncio
 
-from escalation.adapters.agent import AnthropicAgent, ToolSpec
-from escalation.types import Step
+from threshold.adapters.agent import AnthropicAgent, ToolSpec
+from threshold.types import Step
 
 
 def run(coro):

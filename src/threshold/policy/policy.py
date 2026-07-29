@@ -12,17 +12,17 @@ override-driven ones (Decision.hard_override_triggered).
 
 import time
 
-from escalation.decision_cache import DecisionCache, Resolution
-from escalation.decision_log import DecisionLogger
-from escalation.policy.profiles import DEFAULT_WEIGHTS, PROFILE_THRESHOLDS
-from escalation.signals.base import Signal
-from escalation.signals.blast_radius import BlastRadiusSignal
-from escalation.signals.novelty import NoveltySignal
-from escalation.signals.reversibility import HARD_OVERRIDE_CATEGORIES, ReversibilitySignal
-from escalation.signals.self_consistency import SelfConsistencySignal
-from escalation.signals.staleness import StalenessSignal
-from escalation.signals.thrash import ThrashSignal
-from escalation.types import Decision, HumanQuestion, ProposedAction, SignalResult
+from threshold.decision_cache import DecisionCache, Resolution
+from threshold.decision_log import DecisionLogger
+from threshold.policy.profiles import DEFAULT_WEIGHTS, PROFILE_THRESHOLDS
+from threshold.signals.base import Signal
+from threshold.signals.blast_radius import BlastRadiusSignal
+from threshold.signals.novelty import NoveltySignal
+from threshold.signals.reversibility import HARD_OVERRIDE_CATEGORIES, ReversibilitySignal
+from threshold.signals.self_consistency import SelfConsistencySignal
+from threshold.signals.staleness import StalenessSignal
+from threshold.signals.thrash import ThrashSignal
+from threshold.types import Decision, HumanQuestion, ProposedAction, SignalResult
 
 
 class Policy:

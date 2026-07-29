@@ -3,7 +3,7 @@ history, and can resample the SAME decision point N times at
 temperature to populate ProposedAction.alternative_actions.
 
 This is the piece that resolves the architectural question raised when
-self-consistency was designed (Milestone 2): the escalation library
+self-consistency was designed (Milestone 2): the threshold library
 only ever sees a ProposedAction, never a live hook into an agent's
 inference step, because it has no way to actually re-invoke a model.
 This agent IS that hook -- alternative_actions still arrives as plain
@@ -14,8 +14,8 @@ resampling here rather than left for hand-authored scenario data.
 from dataclasses import dataclass
 from typing import Any, Protocol
 
-from escalation.adapters.retry import create_with_temperature_fallback
-from escalation.types import ProposedAction, Step
+from threshold.adapters.retry import create_with_temperature_fallback
+from threshold.types import ProposedAction, Step
 
 
 @dataclass

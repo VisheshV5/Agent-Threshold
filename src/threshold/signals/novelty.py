@@ -21,8 +21,8 @@ from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Protocol
 
-from escalation.signals.base import Signal
-from escalation.types import ProposedAction, SignalResult
+from threshold.signals.base import Signal
+from threshold.types import ProposedAction, SignalResult
 
 
 def _trajectory_signature(action: ProposedAction) -> tuple[str, ...]:

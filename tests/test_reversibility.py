@@ -14,14 +14,14 @@ import asyncio
 
 import pytest
 
-from escalation.signals.base import Signal
-from escalation.signals.reversibility import (
+from threshold.signals.base import Signal
+from threshold.signals.reversibility import (
     HARD_OVERRIDE_CATEGORIES,
     ActionCategory,
     HeuristicFallbackClassifier,
     ReversibilitySignal,
 )
-from escalation.types import ProposedAction
+from threshold.types import ProposedAction
 
 
 def make_action(tool_name: str, arguments: dict | None = None) -> ProposedAction:

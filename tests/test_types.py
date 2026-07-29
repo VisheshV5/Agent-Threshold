@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from escalation.types import HumanQuestion, ProposedAction, SignalResult
+from threshold.types import HumanQuestion, ProposedAction, SignalResult
 
 
 def test_human_question_accepts_recommended_option_in_options():

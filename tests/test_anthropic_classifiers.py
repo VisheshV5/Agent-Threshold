@@ -18,8 +18,8 @@ import asyncio
 
 import pytest
 
-from escalation.adapters.classifiers import AnthropicBlastRadiusEstimator, AnthropicFallbackClassifier
-from escalation.signals.reversibility import ActionCategory
+from threshold.adapters.classifiers import AnthropicBlastRadiusEstimator, AnthropicFallbackClassifier
+from threshold.signals.reversibility import ActionCategory
 
 
 def run(coro):

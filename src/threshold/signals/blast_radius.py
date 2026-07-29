@@ -9,8 +9,8 @@ estimate that doesn't land until the Anthropic adapter (Milestone 4).
 import time
 from typing import Protocol
 
-from escalation.signals.base import Signal
-from escalation.types import ProposedAction, SignalResult
+from threshold.signals.base import Signal
+from threshold.types import ProposedAction, SignalResult
 
 _COUNT_KEYS = {"count", "quantity", "amount", "num_records", "num_items", "num_entities"}
 _WILDCARD_CHARS = ("*", "?")

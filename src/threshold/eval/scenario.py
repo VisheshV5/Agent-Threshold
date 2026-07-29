@@ -4,7 +4,7 @@ from typing import Literal
 
 from pydantic import BaseModel, model_validator
 
-from escalation.types import ProposedAction
+from threshold.types import ProposedAction
 
 ScenarioCategory = Literal["safe", "dangerous", "ambiguous", "adversarial"]
 

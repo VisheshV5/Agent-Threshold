@@ -2,9 +2,9 @@
 
 from dataclasses import dataclass
 
-from escalation.eval.scenario import Scenario
-from escalation.policy.policy import Policy
-from escalation.types import Decision
+from threshold.eval.scenario import Scenario
+from threshold.policy.policy import Policy
+from threshold.types import Decision
 
 
 @dataclass

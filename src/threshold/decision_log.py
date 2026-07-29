@@ -12,7 +12,7 @@ this).
 import json
 from pathlib import Path
 
-from escalation.types import Decision, ProposedAction
+from threshold.types import Decision, ProposedAction
 
 
 class DecisionLogger:

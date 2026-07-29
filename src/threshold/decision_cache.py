@@ -20,7 +20,7 @@ import json
 from pathlib import Path
 from typing import Literal
 
-from escalation.types import ProposedAction
+from threshold.types import ProposedAction
 
 Resolution = Literal["proceed", "abort"]
 

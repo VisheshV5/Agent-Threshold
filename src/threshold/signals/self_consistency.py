@@ -14,8 +14,8 @@ import itertools
 import time
 from typing import Protocol
 
-from escalation.signals.base import Signal
-from escalation.types import ProposedAction, SignalResult
+from threshold.signals.base import Signal
+from threshold.types import ProposedAction, SignalResult
 
 
 class SimilarityScorer(Protocol):

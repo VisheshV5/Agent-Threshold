@@ -9,9 +9,9 @@ protocol, same fail-safe philosophy on an unparseable response.
 
 from typing import Protocol
 
-from escalation.adapters.parsing import parse_score
-from escalation.signals.blast_radius import HeuristicBlastRadiusEstimator
-from escalation.signals.reversibility import ActionCategory
+from threshold.adapters.parsing import parse_score
+from threshold.signals.blast_radius import HeuristicBlastRadiusEstimator
+from threshold.signals.reversibility import ActionCategory
 
 _CATEGORY_BY_VALUE = {category.value: category for category in ActionCategory}
 _CATEGORIES_BY_DESCENDING_LENGTH = sorted(ActionCategory, key=lambda c: -len(c.value))

@@ -16,8 +16,8 @@ Pins the API surface:
   heuristic placeholder.
 """
 
-from escalation.decision_cache import DecisionCache
-from escalation.types import ProposedAction
+from threshold.decision_cache import DecisionCache
+from threshold.types import ProposedAction
 
 
 def make_action(tool_name: str, arguments: dict, reasoning: str = "test") -> ProposedAction:

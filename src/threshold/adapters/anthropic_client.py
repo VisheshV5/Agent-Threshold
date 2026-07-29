@@ -8,7 +8,7 @@ if the SDK's shape changes.
 
 from typing import Any, Protocol
 
-from escalation.adapters.retry import create_with_temperature_fallback
+from threshold.adapters.retry import create_with_temperature_fallback
 
 
 class _RawMessages(Protocol):

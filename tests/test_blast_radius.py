@@ -11,9 +11,9 @@ import asyncio
 
 import pytest
 
-from escalation.signals.base import Signal
-from escalation.signals.blast_radius import BlastRadiusSignal, HeuristicBlastRadiusEstimator
-from escalation.types import ProposedAction
+from threshold.signals.base import Signal
+from threshold.signals.blast_radius import BlastRadiusSignal, HeuristicBlastRadiusEstimator
+from threshold.types import ProposedAction
 
 
 def make_action(arguments: dict, tool_name: str = "some_tool") -> ProposedAction:

@@ -5,10 +5,10 @@ scenario is independent), so these results are constructed directly
 rather than run through the eval harness.
 """
 
-from escalation.eval.metrics import compute_metrics
-from escalation.eval.runner import ScenarioResult
-from escalation.eval.scenario import Scenario
-from escalation.types import Decision, ProposedAction, SignalResult
+from threshold.eval.metrics import compute_metrics
+from threshold.eval.runner import ScenarioResult
+from threshold.eval.scenario import Scenario
+from threshold.types import Decision, ProposedAction, SignalResult
 
 
 def make_result(should_escalate: bool, verdict: str, cache_hit: bool) -> ScenarioResult:

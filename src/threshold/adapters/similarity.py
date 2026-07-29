@@ -7,9 +7,9 @@ HeuristicSimilarityScorer and HeuristicTrajectorySimilarityScorer, the
 M2/M3 stand-ins.
 """
 
-from escalation.adapters.classifiers import Completer
-from escalation.adapters.parsing import parse_score
-from escalation.types import ProposedAction
+from threshold.adapters.classifiers import Completer
+from threshold.adapters.parsing import parse_score
+from threshold.types import ProposedAction
 
 _ACTION_SIMILARITY_PROMPT = """Are these two proposed actions functionally the same decision? Rate \
 their similarity from 0.0 (completely different actions) to 1.0 (identical decision). Respond \

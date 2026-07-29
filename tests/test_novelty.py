@@ -21,13 +21,13 @@ import asyncio
 
 import pytest
 
-from escalation.signals.base import Signal
-from escalation.signals.novelty import (
+from threshold.signals.base import Signal
+from threshold.signals.novelty import (
     HeuristicTrajectorySimilarityScorer,
     NoveltySignal,
     NoveltyStore,
 )
-from escalation.types import ProposedAction, Step
+from threshold.types import ProposedAction, Step
 
 
 def make_action(tool_name: str, trajectory_tools: list[str] | None = None) -> ProposedAction:

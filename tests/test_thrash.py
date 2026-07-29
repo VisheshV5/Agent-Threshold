@@ -15,9 +15,9 @@ import asyncio
 
 import pytest
 
-from escalation.signals.base import Signal
-from escalation.signals.thrash import ThrashSignal
-from escalation.types import ProposedAction, Step
+from threshold.signals.base import Signal
+from threshold.signals.thrash import ThrashSignal
+from threshold.types import ProposedAction, Step
 
 
 def make_action(tool_name: str, trajectory: list[Step] | None = None) -> ProposedAction:

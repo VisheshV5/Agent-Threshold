@@ -14,11 +14,11 @@ import asyncio
 
 import pytest
 
-from escalation.policy.policy import Policy
-from escalation.policy.profiles import PROFILE_THRESHOLDS
-from escalation.signals.base import Signal
-from escalation.signals.reversibility import ReversibilitySignal
-from escalation.types import ProposedAction, SignalResult
+from threshold.policy.policy import Policy
+from threshold.policy.profiles import PROFILE_THRESHOLDS
+from threshold.signals.base import Signal
+from threshold.signals.reversibility import ReversibilitySignal
+from threshold.types import ProposedAction, SignalResult
 
 
 def make_action(tool_name: str) -> ProposedAction:

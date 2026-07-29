@@ -10,10 +10,10 @@ either way.
 
 from dataclasses import dataclass
 
-from escalation.eval.eval_policy import build_eval_policy
-from escalation.eval.metrics import Metrics, compute_metrics
-from escalation.eval.runner import run_scenarios
-from escalation.eval.scenario import Scenario
+from threshold.eval.eval_policy import build_eval_policy
+from threshold.eval.metrics import Metrics, compute_metrics
+from threshold.eval.runner import run_scenarios
+from threshold.eval.scenario import Scenario
 
 
 @dataclass

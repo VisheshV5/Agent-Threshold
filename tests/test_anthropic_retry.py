@@ -14,7 +14,7 @@ import asyncio
 import anthropic
 import pytest
 
-from escalation.adapters.retry import create_with_temperature_fallback
+from threshold.adapters.retry import create_with_temperature_fallback
 
 
 def run(coro):

@@ -18,10 +18,10 @@ import asyncio
 
 import pytest
 
-from escalation.decision_cache import DecisionCache
-from escalation.policy.policy import Policy
-from escalation.signals.reversibility import ReversibilitySignal
-from escalation.types import ProposedAction
+from threshold.decision_cache import DecisionCache
+from threshold.policy.policy import Policy
+from threshold.signals.reversibility import ReversibilitySignal
+from threshold.types import ProposedAction
 
 
 def make_action(tool_name: str, arguments: dict | None = None) -> ProposedAction:

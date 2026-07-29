@@ -1,8 +1,8 @@
 import pytest
 from pydantic import ValidationError
 
-from escalation.eval.scenario import Scenario
-from escalation.types import ProposedAction
+from threshold.eval.scenario import Scenario
+from threshold.types import ProposedAction
 
 
 def make_scenario(**overrides) -> Scenario:
