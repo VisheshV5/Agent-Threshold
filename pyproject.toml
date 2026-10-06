@@ -1,7 +1,7 @@
 [project]
 name = "threshold-agent"
 version = "0.1.0"
-description = "Add your description here"
+description = "Calibrated escalation middleware for AI agents: decides proceed / ask_human / abort before each tool call, with a measurable calibration curve."
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [

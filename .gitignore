@@ -7,3 +7,5 @@ __pycache__/
 demo/run/
 demo/state/
 .env
+.DS_Store
+reports/latest/

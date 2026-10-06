@@ -8,8 +8,8 @@ not something to run without knowing that up front.
 Usage:
     Create a .env file in the project root containing:
         ANTHROPIC_API_KEY=sk-...
-    (never committed -- see .gitignore) then:
-        uv run python demo/cleanup_agent.py
+    (never committed -- see .gitignore) then, from the project root:
+        uv run python -m demo.cleanup_agent
     Or just export ANTHROPIC_API_KEY in your shell instead of using .env.
 
 The task is deliberately mixed: some obviously-junk temp files, and one
